@@ -19,15 +19,15 @@ async def on_ready():
 
 @thriftech.event
 async def on_message(message):
-    if message.channel.id == game_channel and message.author.id != bot_id:
+    if isinstance(message.channel, discord.DMChannel) and message.author.id != bot_id:
         print("processing message for user id %d: %s" % (message.author.id, message.content))
         raw = message.content.split(" ")
         for e in range(len(raw)):
             raw[e] = raw[e].lower()
-        chn = thriftech.get_channel(game_channel)
-        await chn.send(game.run_command(message.author.id, raw))
+        await message.author.send(game.run_command(message.author.id, raw))
 
 
+# I took this from Zote, and it works so yay
 fail_delay = 25
 loop = get_event_loop()
 while True:
@@ -43,7 +43,7 @@ while True:
             gathered.cancel()
             thriftech.loop.run_until_complete(gathered)
             gathered.exception()
-        except Exception:  # This could be better
+        except Exception:  # This could be better too
             pass
     print(f"Attempting restart in {fail_delay} seconds...")
     sleep(fail_delay)
