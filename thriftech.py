@@ -1,19 +1,25 @@
+
+# inf contains the bot's token
 import inf
+
+# discord.py
 import discord
 from discord.ext import commands
+
+# The text adventure game loop
 import game
 
+# For the bot loop
 from time import time, sleep
 from asyncio import get_event_loop, Task, gather
 
-
 thriftech = commands.Bot(command_prefix='.')
-game_channel = 800127364289790002
 bot_id = 800102928911433818
 
 
 @thriftech.event
 async def on_ready():
+    await thriftech.change_presence(activity=discord.Game('DM help to play!'))
     print('Connected')
 
 
