@@ -176,6 +176,8 @@ def load(id_num):
 # Save the game. Performed at the end of each turn
 def save(id_num, dat):
     file_name = "saves/" + str(id_num) + ".json"
+    if not os.path.exists("saves/"):
+        os.mkdir("saves/")
     with open(file_name, "w+") as f:
         json.dump(dat, f)
 
