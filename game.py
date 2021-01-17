@@ -78,7 +78,7 @@ part_recipes = {
 }
 
 component_recipes = {
-    "psu": (("casing", 1), ("cable", 2), ("capacitor", 3)),
+    "psu": (("casing", 1), ("cable", 1), ("capacitor", 2)),
     "motherboard": (("circuit board", 2), ("cable", 1), ("microchip", 1)),
     "processor": (("microchip", 2), ("cable", 2), ("capacitor", 1)),
     "graphics card": (("casing", 1), ("microchip", 2), ("circuit board", 1)),
@@ -204,6 +204,14 @@ def has_all_ingredients(recipe):
     return True
 
 
+# Format recipe for inclusion in messages
+def format_recipe(recipe):
+    out = ""
+    for each in recipe:
+        out += "%s: %d / %d\n" % (each[0], data["inventory"][each[0]], each[1])
+    return out
+
+
 # Craft parts and components, or view crafting menus
 def craft():
 
@@ -216,12 +224,14 @@ def craft():
     # Component-related commands
     for each in _components:
         # Craft a specific component
-        if check_cmd("craft", *each.split(" ")) or check_cmd(*each.split(" ")):
+        if check_cmd("craft", *each.split(" ")):
             if has_all_ingredients(component_recipes[each]):
                 data["inventory"][each] += 1
                 return "You craft a %s" % each
             else:
-                return "You do not have all the required materials to craft a %s" % each
+                out = "You do not have all the required materials to craft a %s\n" % each
+                out += format_recipe(component_recipes[each])
+                return out
     # See component crafting menu
     if check_cmd("craft", ["component", "components"]):
         out = "**COMPONENT CRAFTING MENU**"
@@ -237,12 +247,14 @@ def craft():
     # Part-related commands
     for each in _parts:
         # Craft a specific part
-        if check_cmd("craft", *each.split(" ")) or check_cmd(*each.split(" ")):
+        if check_cmd("craft", *each.split(" ")):
             if has_all_ingredients(part_recipes[each]):
                 data["inventory"][each] += 1
                 return "You craft a %s" % each
             else:
-                return "You do not have all the required materials to craft a %s" % each
+                out = "You do not have all the required materials to craft a %s\n" % each
+                out += format_recipe(part_recipes[each])
+                return out
     # See part crafting menu
     if check_cmd("craft", ["part", "parts"]):
         out = "**PART CRAFTING MENU**"
@@ -284,6 +296,9 @@ def process():
         if r > 0:
             out += "You get %d %s\n" % (r, each)
             data["inventory"][each] += r
+
+    if out == "":
+        return "You get no materials. Unlucky!"
 
     return out
 
