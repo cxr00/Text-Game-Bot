@@ -19,7 +19,7 @@ bot_id = 800102928911433818
 
 @thriftech.event
 async def on_ready():
-    await thriftech.change_presence(activity=discord.Game('DM help to play!'))
+    await thriftech.change_presence(activity=discord.Game('DM "help" to play!'))
     print('Connected')
 
 
