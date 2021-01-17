@@ -6,6 +6,7 @@ import random
 cmd = []
 data = {}
 
+# The save file format
 _frame = {
     "computer":
         {
@@ -87,39 +88,7 @@ component_recipes = {
 }
 
 
-def show_stats():
-    out = ""
-
-    for each in data["inventory"]:
-        out += "%s: %d" % (each, data["inventory"][each])
-        out += "\n"
-
-    for each in data["computer"]:
-        out += "%s added" % each if data["computer"][each] else "%s not yet added" % each
-        out += "\n"
-
-    return out
-
-
-def load(id_num):
-    # Check for file
-    file_name = "saves/" + str(id_num) + ".json"
-    if os.path.exists(file_name):
-        # print("file %s.json exists" % str(id_num))
-        data = {}
-        with open(file_name, "r") as f:
-           data = json.load(f)
-        return data
-    else:
-        return copy.deepcopy(_frame)
-
-
-def save(id_num, data):
-    file_name = "saves/" + str(id_num) + ".json"
-    with open(file_name, "w+") as f:
-        json.dump(data, f)
-
-
+# Validates input as in-game commands
 def check_cmd(*args):
     """
     Determines if command matches args
@@ -134,6 +103,7 @@ def check_cmd(*args):
         if isinstance(args[n], list):
             if not cmd[n] in args[n]:
                 return False
+        # For when cmd[n] is a single word
         elif cmd[n] != args[n].lower():
             return False
         return True
@@ -142,66 +112,153 @@ def check_cmd(*args):
     if len(cmd) < len(args):
         return False
 
-    n = 0
-    while n < len(args):
+    for n in range(len(args)):
         if not arg_matches_cmd(n):
             return False
-        n += 1
 
     return True
 
 
+# See inventory and computer restoration progress
+def show_stats():
+    out = ""
+
+    out += "**INVENTORY**\n"
+    for each in data["inventory"]:
+        if data["inventory"][each] > 0:
+            out += "%s: %d" % (each, data["inventory"][each])
+            out += "\n"
+    out += "\n"
+
+    out += "**COMPUTER**\n"
+    for each in data["computer"]:
+        if data["computer"][each]:
+            out += "%s loaded" % each
+            out += "\n"
+
+    return out
+
+
+# See help text
+def show_help():
+    out = "Welcome to ThrifTech, a text adventure crafting game!\n\n"
+
+    out += "*PROCESS* trash to harvest crafting materials!\n\n"
+    out += "*CRAFT PARTS* and *COMPONENTS* to *FIX* computers!\n\n"
+
+    out += "Each computer needs one of each of the following items:\n"
+    out += "-PSU\n"
+    out += "-motherboard\n"
+    out += "-processor\n"
+    out += "-graphics card\n"
+    out += "-hard drive\n"
+    out += "-solid state drive\n"
+    out += "-RAM\n\n"
+
+    out += "Check your *STATS* to see your inventory and computer status!"
+
+    return out
+
+
+# Load the save game. Performed at the beginning of each turn
+def load(id_num):
+    # Check for file
+    file_name = "saves/" + str(id_num) + ".json"
+    if os.path.exists(file_name):
+        dat = {}
+        with open(file_name, "r") as f:
+            dat = json.load(f)
+        return dat
+    else:
+        return copy.deepcopy(_frame)
+
+
+# Save the game. Performed at the end of each turn
+def save(id_num, dat):
+    file_name = "saves/" + str(id_num) + ".json"
+    with open(file_name, "w+") as f:
+        json.dump(dat, f)
+
+
+# Reset computer build progress to zero after completing a computer
+def reset_computer():
+    for each in data["computer"]:
+        data["computer"][each] = False
+    return True
+
+
+# Check if the player has all ingredients for a given recipe
 def has_all_ingredients(recipe):
     for mat in recipe:
         if data["inventory"][mat[0]] < mat[1]:
             return False
 
+    # Since all materials are possessed, take
+    # one of each material from inventory.
+    # The crafted item is given outside this method
     for mat in recipe:
         data["inventory"][mat[0]] -= mat[1]
 
     return True
 
 
+# Craft parts and components, or view crafting menus
 def craft():
+
+    # When the only thing said is 'craft'
     if len(cmd) == 1:
-        out = "What would you like to craft?"
+        out = "What would you like to craft?\n"
+        out += "Say CRAFT PARTS or CRAFT COMPONENTS to see crafting menus."
         return out
 
     # Component-related commands
     for each in _components:
-        if check_cmd("craft", *each.split(" ")):
+        # Craft a specific component
+        if check_cmd("craft", *each.split(" ")) or check_cmd(*each.split(" ")):
             if has_all_ingredients(component_recipes[each]):
-
+                data["inventory"][each] += 1
                 return "You craft a %s" % each
             else:
                 return "You do not have all the required materials to craft a %s" % each
+    # See component crafting menu
     if check_cmd("craft", ["component", "components"]):
         out = "**COMPONENT CRAFTING MENU**"
-        # for each in component_recipes.items():
-        #     print(each)
-        #     to_print = each[0] + ":\n"
-        #     for mat in each[1]:
-        #         to_print += mat[0] + ": " + str(mat[1]) + ", "
-        #     out += "\n" + to_print[:-2] + "\n"
+        for each in component_recipes.items():
+            to_print = "**" + each[0] + "**\n"
+            for mat in each[1]:
+                to_print += mat[0] + ": "
+                to_print += str(data["inventory"][mat[0]]) + "/"
+                to_print += str(mat[1]) + ", "
+            out += "\n" + to_print[:-2] + "\n"
         return out
 
     # Part-related commands
     for each in _parts:
-        if check_cmd("craft", *each.split(" ")):
-            return "You craft a %s" % each
+        # Craft a specific part
+        if check_cmd("craft", *each.split(" ")) or check_cmd(*each.split(" ")):
+            if has_all_ingredients(part_recipes[each]):
+                data["inventory"][each] += 1
+                return "You craft a %s" % each
+            else:
+                return "You do not have all the required materials to craft a %s" % each
+    # See part crafting menu
     if check_cmd("craft", ["part", "parts"]):
         out = "**PART CRAFTING MENU**"
-        # for each in part_recipes.items():
-        #     print(each)
-        #     to_print = each[0] + ":\n"
-        #     for mat in each[1]:
-        #         to_print += mat[0] + ": " + str(mat[1]) + ", "
-        #     out += "\n" + to_print[:-2] + "\n"
+        for each in part_recipes.items():
+            to_print = "**" + each[0] + "**\n"
+            for mat in each[1]:
+                to_print += mat[0] + ": "
+                to_print += str(data["inventory"][mat[0]]) + "/"
+                to_print += str(mat[1]) + ", "
+            out += "\n" + to_print[:-2] + "\n"
         return out
 
-    return "What would you like to craft?"
+    out = "What would you like to craft?\n"
+    out += "Say CRAFT PARTS or CRAFT COMPONENTS to see crafting menus."
+    return out
 
 
+# Add computer components to computer
 def fix():
 
     at_least_one_fixed = False
@@ -217,6 +274,7 @@ def fix():
         return "You have no needed components"
 
 
+# Process trash for materials
 def process():
     out = ""
     for each in _materials:
@@ -228,15 +286,16 @@ def process():
     return out
 
 
+# Main loop for the game
 def run_command(id_num, cmd_string):
     global data
     data = load(id_num)
-    print(data)
+    print(id_num, data)
 
     global cmd
     cmd = cmd_string
 
-    return_string = "You do nothing, probably because it hasn't been coded yet."
+    return_string = "Hint: PROCESS trash for raw materials!"
 
     if check_cmd("craft"):
         return_string = craft()
@@ -246,6 +305,15 @@ def run_command(id_num, cmd_string):
         return_string = fix()
     elif check_cmd("process"):
         return_string = process()
+    elif check_cmd("help"):
+        return_string = show_help()
+
+    # Check to see if a computer is fully built
+    if all(data["computer"].values()):
+        data["inventory"]["computer"] += 1
+        reset_computer()
+        return_string += "\nYou build a computer.\n"
+        return_string += "You have now built %d computers." % data["inventory"]["computer"]
 
     save(id_num, data)
 
