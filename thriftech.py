@@ -20,7 +20,7 @@ async def on_ready():
 @thriftech.event
 async def on_message(message):
     if message.channel.id == game_channel and message.author.id != bot_id:
-        print("processing message: " + message.content)
+        print("processing message for user id %d: %s" % (message.author.id, message.content))
         raw = message.content.split(" ")
         for e in range(len(raw)):
             raw[e] = raw[e].lower()
