@@ -31,6 +31,17 @@ with open("config/game_id.json", "r") as f:
     game_id = json.load(f)
 
 
+def about_text():
+    output = "With this bot, you can play a variety of text-based games!\n"
+    output += "Just type 'play [game name]' to select a game.\n"
+    output += "Type 'help' for more information about the game!\n"
+    output += "\n"
+    output += "**GAMES**\n"
+    output += "*ThrifTech*: process trash to build computers!\n"
+    output += "*Stox*: Buy and sell for maximum profit!\n"
+    return output
+
+
 # Change and then save game ID file
 def change_game_id(author_id, num):
     game_id[str(author_id)] = num
@@ -57,14 +68,7 @@ async def on_message(message):
             game_id.update({str(author.id): 0})
 
         if raw[0] == "about":
-            output = "With this bot, you can play a variety of text-based games!\n"
-            output += "Just type 'play [game name]' to select a game.\n"
-            output += "Type 'help' for more information about the game!\n"
-            output += "\n"
-            output += "**GAMES**\n"
-            output += "*ThrifTech*: process trash to build computers!\n"
-            output += "*Stox*: Buy and sell for maximum profit!\n"
-            await author.send(output)
+            await author.send(about_text())
 
         elif raw[0] == "play" and raw[1] == "thriftech":
             change_game_id(author.id, 0)
