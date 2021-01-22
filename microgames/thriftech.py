@@ -163,7 +163,7 @@ def show_help():
 # Load the save game. Performed at the beginning of each turn
 def load(id_num):
     # Check for file
-    file_name = "saves/" + str(id_num) + ".json"
+    file_name = "saves/thriftech/" + str(id_num) + ".json"
     if os.path.exists(file_name):
         dat = {}
         with open(file_name, "r") as f:
@@ -175,9 +175,9 @@ def load(id_num):
 
 # Save the game. Performed at the end of each turn
 def save(id_num, dat):
-    file_name = "saves/" + str(id_num) + ".json"
-    if not os.path.exists("saves/"):
-        os.mkdir("saves/")
+    file_name = "saves/thriftech/" + str(id_num) + ".json"
+    if not os.path.exists("../saves/thriftech"):
+        os.mkdir("../saves/thriftech")
     with open(file_name, "w+") as f:
         json.dump(dat, f)
 
@@ -304,7 +304,7 @@ def process():
 
 
 # Main loop for the game
-def run_command(id_num, cmd_string):
+def run_thriftech(id_num, cmd_string):
     global data
     data = load(id_num)
     print(id_num, data)
