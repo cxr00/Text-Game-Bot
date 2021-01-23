@@ -60,17 +60,18 @@ def load(id_num):
 def save(id_num, dat):
     file_name = "saves/stox/" + str(id_num) + ".json"
     if not os.path.exists("saves/stox"):
-        print("Making directory")
         os.mkdir("saves/stox")
     with open(file_name, "w+") as f:
         json.dump(dat, f)
 
 
+# Reset the save file
 def reset_stox():
     global data
     data = copy.deepcopy(_frame)
 
 
+# Rounds all values to the nearest tenth
 def round_everything():
     global data
     data["credits"] = round(data["credits"], 1)
@@ -80,10 +81,10 @@ def round_everything():
         data["previous day price"][each] = round(data["previous day price"][each], 1)
 
 
+# Update the day price and previous day price
 def process_day():
     for each in stox:
         data["previous day price"][each] = data["day price"][each]
-        print(data["previous day price"][each])
         positive = True if random() < .5 else False
         stonk_change = ceil(random() * 10) / 10 + randint(0, 5)
         if stonk_change > data["day price"][each]:
@@ -125,6 +126,7 @@ def check_cmd(*args):
     return True
 
 
+# Show the help string
 def show_help():
     return_string = "Welcome to Stox!\n"
     return_string += "BUY and SELL stox for maximum profit!\n\n"
@@ -138,6 +140,7 @@ def show_help():
     return return_string
 
 
+# Show the player's stats
 def show_stats():
     return_string = "**CREDITS:** %d\n\n" % data["credits"]
     return_string += "**YOUR STOX**\n"
@@ -147,7 +150,9 @@ def show_stats():
     return return_string
 
 
+# Attempt to sell stox
 def sell():
+    # Check for valid stox name
     try:
         sell_stock = cmd[1]
     except IndexError:
@@ -160,6 +165,7 @@ def sell():
     if not valid_stock:
         return "%s is not a valid stox" % sell_stock
 
+    # Check for valid number
     try:
         amount = int(cmd[2])
     except IndexError:
@@ -167,18 +173,25 @@ def sell():
     except ValueError:
         return "%s is not a number.\nWhat number of stox do you want to sell?"
 
+    # Check that you have enough credits
     if data["stox"][sell_stock] < amount:
         return "You do not have that many %s stox to sell" % sell_stock
 
+    # Make sale
     data["credits"] += amount * data["day price"][sell_stock]
     data["credits"] = ceil(data["credits"] * 10) / 10
     data["stox"][sell_stock] -= amount
+
+    # Trigger day to process
     global PROCESS_DAY
     PROCESS_DAY = True
     return "You sell %d %s stox." % (amount, sell_stock)
 
 
+# Attempt to buy stox
 def buy():
+
+    # Check for valid stox name
     try:
         buy_stock = cmd[1]
     except IndexError:
@@ -191,6 +204,7 @@ def buy():
     if not valid_stock:
         return "%s is not a valid stox" % buy_stock
 
+    # Check for valid number
     try:
         amount = int(cmd[2])
     except IndexError:
@@ -198,29 +212,37 @@ def buy():
     except ValueError:
         return "%s is not a number. What number of stox do you want to buy?" % cmd[2]
 
+    # Check that you have enough credits
     if data["credits"] < amount * data["day price"][buy_stock]:
         return "You cannot afford that many %s stox" % buy_stock
 
+    # Make purchase
     data["credits"] -= amount * data["day price"][buy_stock]
     data["credits"] = ceil(data["credits"] * 10) / 10
     data["stox"][buy_stock] += amount
+
+    # Trigger day to process
     global PROCESS_DAY
     PROCESS_DAY = True
     return "You buy %d %s stox." % (amount, buy_stock)
 
 
 def run_stox(id_num, cmd_string):
+    # Load player's data
     global data
     data = load(id_num)
     print(data)
 
+    # Register command string to global variable
     global cmd
     cmd = cmd_string
 
+    # Reset PROCESS_DAY
     global PROCESS_DAY
     PROCESS_DAY = False
 
-    return_string = "Hint: BUY or SELL stox for maximum profit! Or say 'help' for more."
+    # Set return string to default value
+    return_string = "Hint: Say 'help' to learn command syntax!"
 
     if check_cmd("sell"):
         return_string = sell()
@@ -236,12 +258,13 @@ def run_stox(id_num, cmd_string):
 
     if PROCESS_DAY:
         process_day()
-    else:
-        print("Not processing day")
 
+    # Save player's data
     save(id_num, data)
 
     return_string += "\n\n"
+
+    # Add stox ticker and credits to return string
     for each in stox:
         return_string += each + ": "
         return_string += str(data["day price"][each])
