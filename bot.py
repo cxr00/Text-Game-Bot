@@ -1,3 +1,5 @@
+# For loading config
+import json
 
 # inf contains the bot's token
 import inf
@@ -12,7 +14,7 @@ from microgames import thriftech, stox
 # For the bot loop
 from time import time, sleep
 from asyncio import get_event_loop, Task, gather
-import json
+
 
 bot = commands.Bot(command_prefix='.')
 bot_id = 800102928911433818
@@ -23,9 +25,7 @@ games = [
 ]
 
 # Load selected games for each player
-game_id = {
-
-}
+game_id = {}
 
 with open("config/game_id.json", "r") as f:
     game_id = json.load(f)
