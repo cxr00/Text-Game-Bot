@@ -69,7 +69,6 @@ async def on_message(message):
 
         if raw[0] == "about":
             await author.send(about_text())
-
         elif raw[0] == "play" and raw[1] == "thriftech":
             change_game_id(author.id, 0)
             await author.send("You switch the game cartridge to ThrifTech.")
