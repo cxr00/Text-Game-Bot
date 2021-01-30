@@ -88,6 +88,30 @@ component_recipes = {
 }
 
 
+# Load the save game. Performed at the beginning of each turn
+def load(id_num):
+    # Check for file
+    file_name = "saves/thriftech/" + str(id_num) + ".json"
+    if not os.path.exists("../saves/thriftech"):
+        os.mkdir("../saves/thriftech")
+    if os.path.exists(file_name):
+        dat = {}
+        with open(file_name, "r") as f:
+            dat = json.load(f)
+        return dat
+    else:
+        return copy.deepcopy(_frame)
+
+
+# Save the game. Performed at the end of each turn
+def save(id_num, dat):
+    file_name = "saves/thriftech/" + str(id_num) + ".json"
+    if not os.path.exists("../saves/thriftech"):
+        os.mkdir("../saves/thriftech")
+    with open(file_name, "w+") as f:
+        json.dump(dat, f)
+
+
 # Validates input as in-game commands
 def check_cmd(*args):
     """
@@ -158,28 +182,6 @@ def show_help():
     out += "Check your *STATS* to see your inventory and computer status!"
 
     return out
-
-
-# Load the save game. Performed at the beginning of each turn
-def load(id_num):
-    # Check for file
-    file_name = "saves/thriftech/" + str(id_num) + ".json"
-    if os.path.exists(file_name):
-        dat = {}
-        with open(file_name, "r") as f:
-            dat = json.load(f)
-        return dat
-    else:
-        return copy.deepcopy(_frame)
-
-
-# Save the game. Performed at the end of each turn
-def save(id_num, dat):
-    file_name = "saves/thriftech/" + str(id_num) + ".json"
-    if not os.path.exists("../saves/thriftech"):
-        os.mkdir("../saves/thriftech")
-    with open(file_name, "w+") as f:
-        json.dump(dat, f)
 
 
 # Reset computer build progress to zero after completing a computer
