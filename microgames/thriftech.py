@@ -314,7 +314,7 @@ def run_thriftech(id_num, cmd_string):
     global cmd
     cmd = cmd_string
 
-    return_string = "Hint: PROCESS trash for raw materials!"
+    return_string = "Hint: PROCESS trash for raw materials! Or type HELP for more information!"
 
     if check_cmd("craft"):
         return_string = craft()
