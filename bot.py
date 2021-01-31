@@ -9,7 +9,7 @@ import discord
 from discord.ext import commands
 
 # The text adventure game loop
-from microgames import thriftech, stox
+from microgames import thriftech, stox, ratfighter
 
 # For the bot loop
 from time import time, sleep
@@ -21,7 +21,8 @@ bot_id = 800102928911433818
 
 games = [
     thriftech.run_thriftech,
-    stox.run_stox
+    stox.run_stox,
+    ratfighter.run_ratfighter
 ]
 
 # Load selected games for each player
@@ -39,6 +40,7 @@ def about_text():
     output += "**GAMES**\n"
     output += "*ThrifTech*: process trash to build computers!\n"
     output += "*Stox*: Buy and sell for maximum profit!\n"
+    output += "*RatFighter*: Fight rats and level up!\n"
     return output
 
 
@@ -69,12 +71,17 @@ async def on_message(message):
 
         if raw[0] == "about":
             await author.send(about_text())
+        elif len(raw) == 1 and raw[0] == "play":
+            await author.send("What would you like to PLAY? Type 'about' for a list of games!")
         elif raw[0] == "play" and raw[1] == "thriftech":
             change_game_id(author.id, 0)
             await author.send("You switch the game cartridge to ThrifTech.")
         elif raw[0] == "play" and raw[1] == "stox":
             change_game_id(author.id, 1)
             await author.send("You switch the game cartridge to Stox.")
+        elif raw[0] == "play" and raw[1] == "ratfighter":
+            change_game_id(author.id, 2)
+            await author.send("You switch the game cartridge to RatFighter.")
         else:
             await author.send(games[game_id[str(author.id)]](author.id, raw))
 
