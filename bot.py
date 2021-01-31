@@ -17,7 +17,7 @@ from asyncio import get_event_loop, Task, gather
 
 
 bot = commands.Bot(command_prefix='.')
-bot_id = 800102928911433818
+bot_id = 805555536581886002
 
 games = [
     thriftech.run_thriftech,
