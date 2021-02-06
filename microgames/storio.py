@@ -147,7 +147,7 @@ def order():
             else:
                 return_string += "You cannot afford the %s.\n" % item
             break
-    return return_string
+    return return_string if len(return_string) > 0 else "What would you like to ORDER?"
 
 
 # Run the main game loop for one turn
@@ -167,8 +167,10 @@ def run_storio(id_num, cmd_string):
         return_string += show_help()
 
     if data["state"] == "enter":
-        return_string += "A customer enters the shop.\n"
-        data["state"] = "in shop"
+        enters = random.randint(0, 10) > 3
+        if enters:
+            return_string += "A customer enters the shop.\n"
+            data["state"] = "in shop"
     if data["state"] == "in shop":
         return_string += "The customer is browsing.\n"
         if random.randint(0, 10) >= 4:
