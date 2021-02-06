@@ -53,6 +53,14 @@ def change_game_id(author_id, num):
         json.dump(game_id, f)
 
 
+# log the message entered by users
+def log_message(id_num, contents):
+    with open(f"log/{str(id_num)}.txt", "a+") as f:
+        f.write(contents)
+        f.write("\n")
+        print("logged message from %d" % id_num)
+
+
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Game('DM "about" to learn more!'))
@@ -62,7 +70,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     author = message.author
-    if isinstance(message.channel, discord.DMChannel) and author.id != bot_id:
+    if isinstance(message.channel, discord.DMChannel) and author.id != bot_id and not author.bot:
         print("processing message for user id %d: %s" % (author.id, message.content))
         raw = message.content.split(" ")
         for e in range(len(raw)):
@@ -91,6 +99,8 @@ async def on_message(message):
 
         else:
             await author.send(games[game_id[str(author.id)]](author.id, raw))
+
+        log_message(author.id, message.content)
 
 
 # I took this from Zote, and it works so yay
