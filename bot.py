@@ -36,13 +36,15 @@ with open("config/game_id.json", "r") as f:
 def about_text():
     output = "With this bot, you can play a variety of text-based games!\n"
     output += "Just type 'play [game name]' to select a game.\n"
-    output += "Type 'help' for more information about the game!\n"
+    output += "Then type 'help' for more information about the game!\n"
     output += "\n"
     output += "**GAMES**\n"
     output += "*ThrifTech*: process trash to build computers!\n"
     output += "*Stox*: Buy and sell for maximum profit!\n"
     output += "*RatFighter*: Fight rats and level up!\n"
-    output += "*Storio*: Keep your shop stocked with luxury goods!\n"
+    output += "*Storio*: Keep your shop stocked with luxury goods!\n\n"
+
+    output += "If you have any questions or encounter any problems, message Conrad#6780"
     return output
 
 
@@ -63,7 +65,7 @@ def log_message(id_num, contents):
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game('DM "about" to learn more!'))
+    await bot.change_presence(activity=discord.Game('DM "about" to play!'))
     print('Connected')
 
 
@@ -71,7 +73,7 @@ async def on_ready():
 async def on_message(message):
     author = message.author
     if isinstance(message.channel, discord.DMChannel) and author.id != bot_id and not author.bot:
-        print("processing message for user id %d: %s" % (author.id, message.content))
+        print("processing message for user %s: %s" % (author.name, message.content))
         raw = message.content.split(" ")
         for e in range(len(raw)):
             raw[e] = raw[e].lower()
